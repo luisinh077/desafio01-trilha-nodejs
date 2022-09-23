@@ -13,7 +13,6 @@ const users = [];
 
 // Middleware
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
   const { username } = request.headers;
 
   const user = users.find((user) => user.username === username);
@@ -28,7 +27,6 @@ function checksExistsUserAccount(request, response, next) {
 }
 
 function checksExistsIdTodo(request, response, next) {
-  // Complete aqui
   const { id } = request.params;
 
   const todo = todos.find((todo) => todo.id === id);
@@ -43,7 +41,6 @@ function checksExistsIdTodo(request, response, next) {
 }
 
 app.post('/users', (request, response) => {
-  // Complete aqui
   const { name, username } = request.body;
 
   // Verificando se já existe o username informado
@@ -64,14 +61,12 @@ app.post('/users', (request, response) => {
 });
 
 app.get('/todos', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
   const { user } = request;
 
   return response.json(user.todos);
 });
 
 app.post('/todos', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
   const { title, deadline } = request.body;
 
   const { user } = request;
@@ -90,7 +85,6 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
 });
 
 app.put('/todos/:id', checksExistsUserAccount, checksExistsIdTodo, (request, response) => {
-  // Complete aqui
   const { title, deadline } = request.body;
   const { id } = request.params;
   const { todo } = request;
@@ -109,7 +103,6 @@ app.put('/todos/:id', checksExistsUserAccount, checksExistsIdTodo, (request, res
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, checksExistsIdTodo, (request, response) => {
-  // Complete aqui
   const { done } = request.body;
   const { id } = request.params;
   const { todo } = request;
@@ -127,7 +120,6 @@ app.patch('/todos/:id/done', checksExistsUserAccount, checksExistsIdTodo, (reque
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
   const { id } = request.params;
   const { todo } = request;
 
