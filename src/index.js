@@ -18,25 +18,26 @@ function checksExistsUserAccount(request, response, next) {
   const user = users.find((user) => user.username === username);
 
   if(!user) {
-    return response.status(400).json({error: "User not found"});
+    return response.status(404).json({error: "User not found"});
   }
 
-  request.user = user;
+  request.todos = user.todos;
   
   return next();
 }
 
 function checksExistsIdTodo(request, response, next) {
   const { id } = request.params;
+  const { users } = request
 
-  const todo = todos.find((todo) => todo.id === id);
+  // const todo = users.todos.find((todo) => todo.id === id);
 
-  if(!todo) {
-    console.log(todos);
-    return response.status(400).json({error: "Todo not found"});
-  }
+  console.log(users);
+  // if(!todo) {
+  //   return response.status(400).json({error: "Todo not found"});
+  // }
 
-  request.todo = todo;
+  // request.todo = todo;
   return next();
 }
 
@@ -44,34 +45,36 @@ app.post('/users', (request, response) => {
   const { name, username } = request.body;
 
   // Verificando se já existe o username informado
-  const usersAlreadyExists = users.some((users) => users.username === username);
+  const usersAlreadyExists = users.find((users) => users.username === username);
   // Se username já existe, retorna uma mensagem informando que username já existe
   if (usersAlreadyExists) {
     return response.status(400).json({ error: "User already exists!" });
   }
-  console.log(`Aqui: ${username} outro: ${users.username}`);
-  users.push({
+  
+  const user = {
     id: uuidv4(),
     name,
     username,
     todos: []
-  });
+  };
 
-  return response.status(201).send(users);
+  users.push(user);
+
+  return response.status(201).json(user);
 });
 
 app.get('/todos', checksExistsUserAccount, (request, response) => {
-  const { user } = request;
+  const { todos } = request;
 
-  return response.json(user.todos);
+  return response.json(todos);
 });
 
 app.post('/todos', checksExistsUserAccount, (request, response) => {
   const { title, deadline } = request.body;
 
-  const { user } = request;
+  const { todos } = request;
 
-  const todosOperation = {
+  const todo = {
     id: uuidv4(),
     title,
     done: false,
@@ -79,57 +82,63 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
     created_at: new Date()
   }
 
-  user.todos.push(todosOperation);
+  todos.push(todo);
 
-  return response.status(201).send("To-Do Cadastrado com sucesso");
+  return response.status(201).json(todo);
 });
 
-app.put('/todos/:id', checksExistsUserAccount, checksExistsIdTodo, (request, response) => {
+app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { title, deadline } = request.body;
   const { id } = request.params;
-  const { todo } = request;
+  const { todos } = request;
 
   // Verificando se já existe o id do todo informado
-  const idAlreadyExists = todos.some((todos) => todos.id === id);
+  const todo = todos.find((todo) => todo.id === id);
   // Se o id não existe, retorna uma mensagem informando que não existe o id
-  if (!idAlreadyExists) {
-    return response.status(400).json({ error: "Id not exists!" });
+  if (!todo) {
+    return response.status(404).json({ error: "Id not exists!" });
   }
 
   todo.title = title;
   todo.deadline = deadline;
 
-  return response.status(201).send("Atualização feita com sucesso!");
+  return response.status(201).json(todo);
 });
 
-app.patch('/todos/:id/done', checksExistsUserAccount, checksExistsIdTodo, (request, response) => {
-  const { done } = request.body;
+app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
   const { id } = request.params;
-  const { todo } = request;
+  const { todos } = request;
 
   // Verificando se já existe o id do todo informado
-  const idAlreadyExists = todos.some((todos) => todos.id === id);
+  const todo = todos.find((todo) => todo.id === id);
   // Se o id não existe, retorna uma mensagem informando que não existe o id
-  if (!idAlreadyExists) {
-    return response.status(400).json({ error: "Id not exists!" });
+  if (!todo) {
+    return response.status(404).json({ error: "Id not exists!" });
   }
 
-  todo.done = done;
-
-  return response.status(201).send("Atualização feita com sucesso!");
+  todo.done = true;
+  
+  return response.status(201).json(todo);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { id } = request.params;
-  const { todo } = request;
+  const { todos } = request;
 
+  // Verificando se já existe o id do todo informado
+  const todo = todos.find((todo) => todo.id === id);
+  // Se o id não existe, retorna uma mensagem informando que não existe o id
+  if (!todo) {
+    return response.status(404).json({ error: "Id not exists!" });
+  }
+  
   const indexTodo = todos.findIndex(
-    todoIndex => todoIndex.id === todo.id
+    todoIndex => todoIndex.id === id
   );
 
   todos.splice(indexTodo, 1);
 
-  return response.status(200).json(todos);
+  return response.status(204).json(todos);
 });
 
 module.exports = app;
