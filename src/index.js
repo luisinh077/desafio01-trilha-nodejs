@@ -9,7 +9,6 @@ app.use(cors());
 app.use(express.json());
 
 const users = [];
-// const todos = [];
 
 // Middleware
 function checksExistsUserAccount(request, response, next) {
