@@ -26,21 +26,6 @@ function checksExistsUserAccount(request, response, next) {
   return next();
 }
 
-function checksExistsIdTodo(request, response, next) {
-  const { id } = request.params;
-  const { users } = request
-
-  // const todo = users.todos.find((todo) => todo.id === id);
-
-  console.log(users);
-  // if(!todo) {
-  //   return response.status(400).json({error: "Todo not found"});
-  // }
-
-  // request.todo = todo;
-  return next();
-}
-
 app.post('/users', (request, response) => {
   const { name, username } = request.body;
 
@@ -131,7 +116,7 @@ app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   if (!todo) {
     return response.status(404).json({ error: "Id not exists!" });
   }
-  
+
   const indexTodo = todos.findIndex(
     todoIndex => todoIndex.id === id
   );
